@@ -22,6 +22,19 @@ int	ft_strlen(const char *str)
 	return (i);
 }
 
+char	*ft_strchr(const char *s, int c)
+{
+	char	*str;
+
+	str = (char *)s;
+	while (*str != '\0' && *str != (char)c)
+		str++;
+	if (*str == (char)c)
+		return (str);
+	else
+		return (0);
+}
+
 char	*ft_strjoin(const char *s1, const char *s2)
 {
 	char	*str;

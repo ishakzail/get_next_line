@@ -12,7 +12,7 @@
 
 #include "get_next_line.h"
 
-static int	ft_nl_found(char *buff)
+int	ft_nl_found(char *buff)
 {
 	int	i;
 
@@ -27,7 +27,8 @@ static int	ft_nl_found(char *buff)
 	}
 	return (0);
 }
-static char	*ft_get_line(char *s)
+
+char	*ft_get_line(char *s)
 {
 	char	*temp;
 	int		i;
@@ -43,35 +44,49 @@ static char	*ft_get_line(char *s)
 	temp = ft_substr(s,0,i+1);
 	return (temp);
 }
-char	*get_next_line(int fd)
-{
-	char		*buff;
-	char		*line;
-	static char	*rec;
-	int			ret;
 
-	ret = 1;
-	if (fd < 0)
-		return (NULL);
-	buff = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+char	*ft_read_and_save(int fd, char *rec)
+{
+	char	*buff;
+	int		ret;
+
+	buff = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buff)
 		return (NULL);
-	ret = read(fd, buff, BUFFER_SIZE - 1);
-	printf("ret = %d\n", ret);
-	if (ret <= 0)
+	ret = 1;
+	while (ret != 0)
+	{
+		ret = read(fd, buff, BUFFER_SIZE);
+		if (ret == -1)
+		{
+			free(buff);
+			return (NULL);
+		}
+		//buff[ret] = '\0';
+		rec = ft_strjoin(rec,buff);
+	}
+	free(buff);
+	return (rec);
+}
+char	*get_next_line(int fd)
+{
+	char		*line;
+	static char	*rec;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	line = ft_get_line(buff);
-	rec = ft_strjoin(rec,line);
-	printf("record : %s\n", rec);
+	rec = ft_read_and_save(fd,rec);
+	printf("rec : %s",rec);
+	if (!rec)
+		return (NULL);
+	line = ft_get_line(rec);
 	return (line);
 }
-
 int main ()
 {
 		int fd = open("temp.txt",  O_RDONLY);
 		char *f = get_next_line(fd);
-		printf("%s",f);
-		printf("%d", BUFFER_SIZE);
+		printf("get : %s",f);
 		close(fd);
 		return (0);
 }
