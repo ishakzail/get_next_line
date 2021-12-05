@@ -12,21 +12,31 @@
 
 #include "get_next_line.h"
 
-int	ft_nl_found(char *buff)
+char	*ft_read_line(char *src)
 {
-	int	i;
+	size_t	i;
+	char	*str;
 
 	i = 0;
-	if (!buff || !*buff)
-		return (0);
-	while (buff[i] != '\0')
+	if (src == NULL)
+		return (NULL);
+	while (src[i] != '\0' && src[i] != '\n')
+		i++;
+	str = (char *)malloc(sizeof(char) * (i + 2));
+	if (str == NULL)
+		return (NULL);
+	i = 0;
+	while (src[i] != '\0' && src[i] != '\n')
 	{
-		if (buff[i] == '\n')
-			return (1);
+		str[i] = src[i];
 		i++;
 	}
-	return (0);
+	if (src[i] == '\n')
+		str[i++] = '\n';
+	str[i] = '\0';
+	return (str);
 }
+
 char	*ft_save(char *save)
 {
 	int		i;
@@ -52,83 +62,60 @@ char	*ft_save(char *save)
 	free(save);
 	return (s);
 }
-char	*ft_get_line(char *s)
-{
-	char	*temp;
-	int		i;
 
-	i = 0;
-	if (!s && !*s)
+char	*get_line(char *src, int fd)
+{
+	char	*buffer;
+	int		size;
+
+	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (buffer == NULL)
+	{
+		free(buffer);
 		return (NULL);
-	while (s[i] && s[i] != '\n')
-		i++;
-	temp = (char *)malloc(sizeof(char) * (i + 2));
-	if (!temp)
-		return (NULL);
-	temp = ft_substr(s,0,i+1);
-	return (temp);
+	}
+	size = 1;
+	while (!ft_strchr(src, '\n') && size != 0)
+	{
+		size = read(fd, buffer, BUFFER_SIZE);
+		printf("size : %d",size);
+		if (size == -1)
+		{
+			free(buffer);
+			return (NULL);
+		}
+		buffer[size] = '\0';
+		src = ft_strjoin(src, buffer);
+	}
+	free(buffer);
+	printf("get line : %s",src);
+	return (src);
 }
 
-// char	*ft_read_and_save(int fd, char *rec)
-// {
-// 	char	*buff;
-// 	int		ret;
-
-// 	buff = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-// 	if (!buff)
-// 		return (NULL);
-// 	ret = 1;
-// 	while (ret != 0 && !ft_nl_found(rec))
-// 	{
-// 		ret = read(fd, buff, BUFFER_SIZE);
-// 		if (ret == -1)
-// 		{
-// 			free(buff);
-// 			return (NULL);
-// 		}
-// 		buff[ret] = '\0';
-// 		rec = ft_strjoin(buff,rec);
-// 	}
-// 	free(buff);
-// 	return (rec);
-// }
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*rec;
-	char		*buff;
-	int		ret;
+	static char	*next_line;
 
+	line = NULL;
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	buff = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!buff)
+	next_line = get_line(next_line, fd);
+	if (next_line == NULL)
 		return (NULL);
-	ret = 1;
-	while (ret != 0 && !ft_nl_found(rec))
+	line = ft_read_line(next_line);
+	next_line = ft_save(next_line);
+	if (line[0] == '\0')
 	{
-		printf("buff : %s\n",buff);
-		ret = read(fd, buff, BUFFER_SIZE);
-		printf("ret : %d\n",ret);
-		if (ret == -1)
-		{
-			free(buff);
-			return (NULL);
-		}
-		buff[ret] = '\0';
-		rec = ft_strjoin(buff,rec);
-	}
-	free(buff);
-	printf("rec :%s\n",rec);
-	if (!rec)
+		free(next_line);
+		free(line);
 		return (NULL);
-	line = ft_get_line(rec);
-	rec = ft_save(rec);
+	}
 	return (line);
 }
 int main ()
 {
-		int fd = open("file.txt", O_RDONLY);
+		int fd = open("temp.txt", O_RDONLY);
 		//char *f = get_next_line(fd);
 		printf("get : %s",get_next_line(fd));
 		close(fd);
