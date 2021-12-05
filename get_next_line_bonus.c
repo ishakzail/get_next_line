@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: izail <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/12/01 11:02:55 by izail             #+#    #+#             */
-/*   Updated: 2021/12/05 18:53:32 by izail            ###   ########.fr       */
+/*   Created: 2021/12/05 19:50:59 by izail             #+#    #+#             */
+/*   Updated: 2021/12/05 19:51:02 by izail            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static char	*ft_read_line(char *src)
 {
@@ -93,19 +93,19 @@ static char	*get_line(char *src, int fd)
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*rec;
+	static char	*rec[10240];
 
 	line = NULL;
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	rec = get_line(rec, fd);
-	if (rec == NULL)
+	rec[fd] = get_line(rec[fd], fd);
+	if (rec[fd] == NULL)
 		return (NULL);
-	line = ft_read_line(rec);
-	rec = ft_save(rec);
+	line = ft_read_line(rec[fd]);
+	rec[fd] = ft_save(rec[fd]);
 	if (line[0] == '\0')
 	{
-		free(rec);
+		free(rec[fd]);
 		free(line);
 		return (NULL);
 	}
@@ -114,12 +114,17 @@ char	*get_next_line(int fd)
 // int main ()
 // {
 // 		int fd = open("temp.txt", O_RDONLY);
-
-// 		printf("fd p : %p", fd);
-// 		printf("get 1: %s",get_next_line(fd));
-// 		printf("get 2: %s",get_next_line(fd));
-// 		printf("get 3: %s",get_next_line(fd));
-// 		printf("get 3: %s",get_next_line(fd));
+//         int fd2 =open("file.txt" , O_RDONLY);
+// 		printf("fd : %d\n",fd);
+// 		printf("fd2 : %d\n",fd2);
+// 		printf("gnl | fd 1: %s",get_next_line(fd));
+// 		printf("gnl | fd2 1: %s",get_next_line(fd2));
+// 		printf("gnl | fd 2: %s",get_next_line(fd));
+// 		printf("gnl | fd2 2: %s",get_next_line(fd2));
+// 		printf("gnl | fd 3: %s",get_next_line(fd));
+// 		printf("gnl | fd2 3: %s",get_next_line(fd2));
+// 		printf("gnl | fd 4: %s",get_next_line(fd));
+// 		printf("gnl | fd2 4: %s",get_next_line(fd2));
 // 		close(fd);
 // 		return (0);
 // }
