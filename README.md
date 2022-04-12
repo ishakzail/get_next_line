@@ -111,6 +111,6 @@ or
 To compile the program, use these flags:
 > <b>Make sure to change the XX after BUFFER_SIZE to the buffer size you want the program to work with.</b>
 ```sh
-gcc -Wall -Wextra -Werror -D BUFFER_SIZE=XX path/to/main_function.c path/to/get_next_line.c path/to/get_next_line_utils.c -I path/to/get_next_line.h 
+gcc -Wall -Wextra -Werror -D BUFFER_SIZE=XX main_function.c get_next_line.c get_next_line_utils.c -I get_next_line.h 
 ```
 ---
